@@ -75,7 +75,7 @@ namespace SaneWpf.Framework
         }
 
         public IEnumerable GetErrors(string propertyName) => _validationIssues.TryGetValue(propertyName, out var issues)
-            ? issues.Select(x => x.Text)
+            ? issues
             : null;
 
         public bool HasErrors => _validationIssues.Any();

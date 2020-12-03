@@ -4,21 +4,21 @@ namespace SaneWpf.Framework
 {
     public class ValidationIssue : IEquatable<ValidationIssue>
     {
-        public ValidationIssue(string text, IssueSeverity severity)
+        public ValidationIssue(string message, IssueSeverity severity)
         {
-            Text = text;
+            Message = message;
             Severity = severity;
         }
 
         public IssueSeverity Severity { get; }
 
-        public string Text { get; }
+        public string Message { get; }
 
         public bool Equals(ValidationIssue other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Severity == other.Severity && Text == other.Text;
+            return Severity == other.Severity && Message == other.Message;
         }
 
         public override bool Equals(object obj)
@@ -29,6 +29,6 @@ namespace SaneWpf.Framework
             return Equals((ValidationIssue) obj);
         }
 
-        public override int GetHashCode() => HashCode.Combine((int) Severity, Text);
+        public override int GetHashCode() => HashCode.Combine((int) Severity, Message);
     }
 }

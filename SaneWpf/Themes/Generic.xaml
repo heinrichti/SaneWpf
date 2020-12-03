@@ -1,7 +1,9 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:SaneWpf">
+    xmlns:local="clr-namespace:SaneWpf"
+    xmlns:framework="clr-namespace:SaneWpf.Framework"
+    xmlns:internal="clr-namespace:SaneWpf.Framework.Internal">
     <Style TargetType="{x:Type local:CustomControl1}">
         <Setter Property="Template">
             <Setter.Value>
@@ -15,10 +17,12 @@
         </Setter>
     </Style>
 
+    <internal:ErrorConverter x:Key="ErrorConverter" />
+
     <Style TargetType="{x:Type TextBox}">
         <Style.Triggers>
             <Trigger Property="Validation.HasError" Value="True">
-                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)/ErrorContent}" />
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Mode=OneWay, Path=(Validation.Errors), Converter={StaticResource ErrorConverter}}" />
             </Trigger>
         </Style.Triggers>
     </Style>
