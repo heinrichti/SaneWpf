@@ -14,8 +14,8 @@ namespace SaneWpf.Framework.Internal
             var items = value as IEnumerable<ValidationError>;
             if (items == null) return "";
 
-            IssueSeverity severity = IssueSeverity.Error;
-            foreach (var issue in items.Select(x => x.ErrorContent).Cast<ValidationIssue>())
+            var severity = Validation.IssueSeverity.Error;
+            foreach (var issue in items.Select(x => x.ErrorContent).Select(x => x is Validation v ? v : Validation.Error(x.ToString())))
             {
                 if (issue.Severity > severity)
                 {

@@ -17,7 +17,7 @@ namespace SaneWpf.Framework.Internal
 
             var builder = new StringBuilder();
 
-            using (var enumerator = items.Select(x => x.ErrorContent).Cast<ValidationIssue>().GetEnumerator())
+            using (var enumerator = items.Select(x => x.ErrorContent).Select(x => x is Validation v ? v : Validation.Error(x.ToString())).GetEnumerator())
             {
                 if (enumerator.MoveNext())
                 {

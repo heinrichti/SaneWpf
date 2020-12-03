@@ -2,9 +2,19 @@
 
 namespace SaneWpf.Framework
 {
-    public class ValidationIssue : IEquatable<ValidationIssue>
+    public class Validation : IEquatable<Validation>
     {
-        public ValidationIssue(string message, IssueSeverity severity)
+        public enum IssueSeverity
+        {
+            Error = 1,
+            Warning = 2
+        }
+
+        public static Validation Warning(string message) => new Validation(message, IssueSeverity.Warning);
+
+        public static Validation Error(string message) => new Validation(message, IssueSeverity.Error);
+
+        private Validation(string message, IssueSeverity severity)
         {
             Message = message;
             Severity = severity;
@@ -14,7 +24,7 @@ namespace SaneWpf.Framework
 
         public string Message { get; }
 
-        public bool Equals(ValidationIssue other)
+        public bool Equals(Validation other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -26,7 +36,7 @@ namespace SaneWpf.Framework
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((ValidationIssue) obj);
+            return Equals((Validation) obj);
         }
 
         public override int GetHashCode() => HashCode.Combine((int) Severity, Message);

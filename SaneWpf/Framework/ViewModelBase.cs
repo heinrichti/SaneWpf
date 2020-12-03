@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -29,24 +30,24 @@ namespace SaneWpf.Framework
             return true;
         }
 
-        private readonly Dictionary<string, List<ValidationIssue>> _validationIssues = new Dictionary<string, List<ValidationIssue>>();
+        private readonly Dictionary<string, List<Validation>> _validationIssues = new Dictionary<string, List<Validation>>();
 
         private void ValidateProperty<T>(T value, [CallerMemberName] string propertyName = null)
         {
             if (propertyName == null) return;
 
-            var issues = new List<ValidationIssue>();
+            var issues = new List<Validation>();
             
             var validationContext = new ValidationContext(this);
             validationContext.MemberName = propertyName;
             var validationResult = new Collection<ValidationResult>();
             if (!Validator.TryValidateProperty(value, validationContext, validationResult))
-                issues.AddRange(validationResult.Select(result => new ValidationIssue(result.ErrorMessage, IssueSeverity.Error)));
+                issues.AddRange(validationResult.Select(result => Validation.Error(result.ErrorMessage)));
 
             if (_validationRules.TryGetValue(propertyName, out var validationRules))
             {
                 issues.AddRange(validationRules
-                    .Cast<Func<T, ValidationIssue>>()
+                    .Cast<Func<T, Validation>>()
                     .Select(validationRule => validationRule(value))
                     .Where(validationIssue => validationIssue != null));
             }
@@ -58,12 +59,22 @@ namespace SaneWpf.Framework
                 _validationIssues[propertyName] = issues;
         }
 
-        protected void AddValidation<T>(string propertyName, Func<T, ValidationIssue> validationFunc)
+        protected void AddValidation<T>(
+            Expression<Func<T>> property, 
+            Func<T, bool> errorCondition,
+            Validation validation)
         {
+            if (!(property.Body is MemberExpression memberExpression))
+                throw new ArgumentException(nameof(property) + " must be a MemberExpression");
+            
+            var propertyName = memberExpression.Member.Name;
+
+            Validation ValidateFunc(T arg) => errorCondition(arg) ? validation : null;
+
             if (_validationRules.TryGetValue(propertyName, out var rules))
-                rules.Add(validationFunc);
+                rules.Add((Func<T, Validation>) ValidateFunc);
             else
-                _validationRules.Add(propertyName, new List<object> {validationFunc});
+                _validationRules.Add(propertyName, new List<object> {(Func<T, Validation>) ValidateFunc});
         }
 
         public IEnumerable GetErrors(string propertyName) => _validationIssues.TryGetValue(propertyName, out var issues)

@@ -8,12 +8,12 @@ namespace SaneWpfSample
     class MainWindowViewModel : ViewModelBase
     {
         private string _test;
+        private int _numberTest;
 
         public MainWindowViewModel()
         {
-            this.AddValidation(nameof(Test), (string t) => t == "nobody" 
-                ? new ValidationIssue("Name should not be nobody", IssueSeverity.Warning) 
-                : null);
+            AddValidation(() => Test, s => s == "nobody", Validation.Warning("Name should not be nobody"));
+            AddValidation(() => NumberTest, i => i < 25 || i > 50, Validation.Error("NumberTest has to be between 25 and 50"));
         }
 
         [Required]
@@ -21,11 +21,17 @@ namespace SaneWpfSample
         public string Test
         {
             get => _test;
-            set => this.Set(ref _test, value);
+            set => Set(ref _test, value);
+        }
+
+        public int NumberTest
+        {
+            get => _numberTest;
+            set => Set(ref _numberTest, value);
         }
 
 
-        public ICommand AsyncCommand => new AsyncCommand<object>(obj => AsyncTestMethod());
+        public ICommand AsyncCommand => new AsyncCommand<object>(_ => AsyncTestMethod());
 
         public async Task AsyncTestMethod()
         {
