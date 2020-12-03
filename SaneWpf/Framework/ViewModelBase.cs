@@ -50,11 +50,13 @@ namespace SaneWpf.Framework
                     .Where(validationIssue => validationIssue != null));
             }
 
-            if (_validationIssues.Remove(propertyName))
+            _validationIssues.Remove(propertyName);
                 ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
 
             if (issues.Any())
                 _validationIssues[propertyName] = issues;
+
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
 
         protected void AddValidation<T>(
@@ -75,9 +77,15 @@ namespace SaneWpf.Framework
                 _validationRules.Add(propertyName, new List<object> {(Func<T, Validation>) ValidateFunc});
         }
 
-        public IEnumerable GetErrors(string propertyName) => _validationIssues.TryGetValue(propertyName, out var issues)
-            ? issues
-            : null;
+        public IEnumerable GetErrors(string propertyName)
+        {
+            if (propertyName == null)
+                return _validationIssues.SelectMany(x => x.Value);
+
+            return _validationIssues.TryGetValue(propertyName, out var issues)
+                ? issues
+                : null;
+        }
 
         public bool HasErrors => _validationIssues.Any();
 

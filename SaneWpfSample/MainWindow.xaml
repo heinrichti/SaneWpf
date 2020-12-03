@@ -7,6 +7,7 @@
         xmlns:controls="clr-namespace:SaneWpf.Controls;assembly=SaneWpf"
         Height="350"
         Width="610"
+        Title="Testwindow"
         mc:Ignorable="d">
 
     <Window.Resources>
@@ -18,19 +19,23 @@
     </Window.DataContext>
 
     <controls:LoadingDecorator>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        <DockPanel>
+            <controls:IssuesControl DockPanel.Dock="Top" />
 
-            <StackPanel Orientation="Horizontal">
-                <TextBox Width="150" Margin="2" Text="{Binding Test}" />
-                <TextBox Width="150" Margin="2" Text="{Binding NumberTest}" />
-            </StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Width="150" Margin="2" Text="{Binding Test}" />
+                    <TextBox Width="150" Margin="2" Text="{Binding NumberTest}" />
+                </StackPanel>
             
 
-            <Button Grid.Row="1" Command="{Binding AsyncCommand}">Testbutton</Button>
-        </Grid>
+                <Button Grid.Row="1" Command="{Binding AsyncCommand}">Testbutton</Button>
+            </Grid>
+        </DockPanel>
     </controls:LoadingDecorator>
 </Window>
