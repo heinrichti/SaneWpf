@@ -24,8 +24,8 @@ namespace SaneWpf.Framework
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
-            RaisePropertyChanged(propertyName);
             ValidateProperty(value, propertyName);
+            RaisePropertyChanged(propertyName);
             return true;
         }
 
@@ -34,8 +34,6 @@ namespace SaneWpf.Framework
         private void ValidateProperty<T>(T value, [CallerMemberName] string propertyName = null)
         {
             if (propertyName == null) return;
-
-            var hasOldIssues = _validationIssues.TryGetValue(propertyName, out var oldPropertyIssues);
 
             var issues = new List<ValidationIssue>();
             
@@ -53,14 +51,11 @@ namespace SaneWpf.Framework
                     .Where(validationIssue => validationIssue != null));
             }
 
-            _validationIssues.Remove(propertyName);
-            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+            if (_validationIssues.Remove(propertyName))
+                ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
 
             if (issues.Any())
                 _validationIssues[propertyName] = issues;
-
-            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-
         }
 
         protected void AddValidation<T>(string propertyName, Func<T, ValidationIssue> validationFunc)
