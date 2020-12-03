@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using SaneWpf.Framework;
 
 namespace SaneWpfSample
@@ -22,5 +24,16 @@ namespace SaneWpfSample
             set => this.Set(ref _test, value);
         }
 
+
+        public ICommand AsyncCommand => new AsyncCommand<object>((obj) => AsyncTestMethod());
+
+        public async Task AsyncTestMethod()
+        {
+            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100).ConfigureAwait(false);
+        }
     }
 }
