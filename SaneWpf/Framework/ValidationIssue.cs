@@ -30,5 +30,7 @@ namespace SaneWpf.Framework
         }
 
         public override int GetHashCode() => HashCode.Combine((int) Severity, Message);
+
+        public override string ToString() => Message;
     }
 }

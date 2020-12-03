@@ -22,14 +22,7 @@ namespace SaneWpfSample
     {
         public MainWindow()
         {
-            //ContentRendered += OnContentRendered;
             InitializeComponent();
-        }
-
-        private void OnContentRendered(object? sender, EventArgs e)
-        {
-            var tmp = (MainWindowViewModel) DataContext;
-            //tmp.TestMethod();
         }
     }
 }

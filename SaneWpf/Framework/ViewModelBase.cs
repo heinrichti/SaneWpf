@@ -53,17 +53,14 @@ namespace SaneWpf.Framework
                     .Where(validationIssue => validationIssue != null));
             }
 
-            var hasErrors = HasErrors;
-
             _validationIssues.Remove(propertyName);
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+
             if (issues.Any())
                 _validationIssues[propertyName] = issues;
 
-            if (!hasErrors && _validationIssues.Any() || hasErrors && !_validationIssues.Any()) 
-                RaisePropertyChanged(nameof(HasErrors));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
 
-            if (hasOldIssues && !issues.Any() || !hasOldIssues && issues.Any() || hasOldIssues && issues.SequenceEqual(oldPropertyIssues))
-                ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
         }
 
         protected void AddValidation<T>(string propertyName, Func<T, ValidationIssue> validationFunc)

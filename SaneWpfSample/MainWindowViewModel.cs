@@ -7,6 +7,13 @@ namespace SaneWpfSample
     {
         private string _test;
 
+        public MainWindowViewModel()
+        {
+            this.AddValidation(nameof(Test), (string t) => t == "nobody" 
+                ? new ValidationIssue("Name should not be nobody", IssueSeverity.Warning) 
+                : null);
+        }
+
         [Required]
         [MinLength(4)]
         public string Test

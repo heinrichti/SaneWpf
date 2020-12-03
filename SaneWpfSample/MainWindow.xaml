@@ -13,8 +13,12 @@
 
     <Window.DataContext><StaticResource ResourceKey="ViewModel" /></Window.DataContext>
 
-    <StackPanel>
-        <TextBox Text="{Binding Test}"></TextBox>
-        <Button>Testbutton</Button>
-    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBox Margin="2" Text="{Binding Test}"></TextBox>
+        <Button Grid.Row="1">Testbutton</Button>
+    </Grid>
 </Window>
