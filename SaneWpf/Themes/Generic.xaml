@@ -6,5 +6,6 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="LoadingIndicator.xaml" />
         <ResourceDictionary Source="ErrorTemplate.xaml" />
+        <ResourceDictionary Source="Converters.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

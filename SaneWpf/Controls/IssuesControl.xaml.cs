@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -55,10 +54,40 @@ namespace SaneWpf.Controls
             set { SetValue(WarningsProperty, value); }
         }
 
+        public static readonly DependencyProperty HasIssuesProperty = DependencyProperty.Register(
+            "HasIssues", typeof(bool), typeof(IssuesControl), new PropertyMetadata(default(bool)));
+
+        public bool HasIssues
+        {
+            get { return (bool) GetValue(HasIssuesProperty); }
+            set { SetValue(HasIssuesProperty, value); }
+        }
+
+        public static readonly DependencyProperty HasErrorsProperty = DependencyProperty.Register(
+            "HasErrors", typeof(bool), typeof(IssuesControl), new PropertyMetadata(default(bool)));
+
+        public bool HasErrors
+        {
+            get { return (bool) GetValue(HasErrorsProperty); }
+            set { SetValue(HasErrorsProperty, value); }
+        }
+
+        public static readonly DependencyProperty HasWarningsProperty = DependencyProperty.Register(
+            "HasWarnings", typeof(bool), typeof(IssuesControl), new PropertyMetadata(default(bool)));
+
+        public bool HasWarnings
+        {
+            get { return (bool) GetValue(HasWarningsProperty); }
+            set { SetValue(HasWarningsProperty, value); }
+        }
+
         private void ClearErrors()
         {
             Errors.Clear();
             Warnings.Clear();
+            HasIssues = false;
+            HasWarnings = false;
+            HasErrors = false;
         }
 
         private void UpdateErrors(INotifyDataErrorInfo viewModel)
@@ -71,6 +100,10 @@ namespace SaneWpf.Controls
 
             foreach (var validation in validations.Where(x => x.Severity == Validation.IssueSeverity.Warning)) 
                 Warnings.Add(validation);
+
+            HasIssues = validations.Any();
+            HasWarnings = Warnings.Any();
+            HasErrors = Errors.Any();
         }
 
         private IEnumerable<Validation> GetErrors(INotifyDataErrorInfo viewModel)

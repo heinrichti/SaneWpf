@@ -4,11 +4,6 @@
              xmlns:local="clr-namespace:SaneWpfSample"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/SaneWpf;component/Themes/Generic.xaml" />
-                <!--<ResourceDictionary Source="/SaneWpf;component/Themes/LoadingIndicator.xaml" />-->
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <ResourceDictionary Source="/SaneWpf;component/Themes/Generic.xaml" />
     </Application.Resources>
 </Application>
