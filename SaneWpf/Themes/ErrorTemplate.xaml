@@ -1,0 +1,35 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:SaneWpf.Themes"
+                    xmlns:internal="clr-namespace:SaneWpf.Framework.Internal">
+    
+    <internal:ErrorConverter x:Key="ErrorConverter" />
+    <internal:AggregateSeverityConverter x:Key="AggregateSeverityConverter" />
+
+    <ControlTemplate x:Key="DefaultErrorTemplate" TargetType="Control">
+        <Border BorderThickness="1">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="BorderBrush" Value="Red" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Mode=OneWay, Converter={StaticResource AggregateSeverityConverter}}" Value="2">
+                            <Setter Property="BorderBrush" Value="Orange" />
+                            <Setter Property="BorderThickness" Value="2" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <AdornedElementPlaceholder x:Name="AdornedElementPlaceholder" />
+        </Border>
+    </ControlTemplate>
+
+    <Style TargetType="{x:Type TextBox}">
+        <Setter Property="Validation.ErrorTemplate" Value="{StaticResource DefaultErrorTemplate}" />
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Mode=OneWay, Path=(Validation.Errors), Converter={StaticResource ErrorConverter}}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

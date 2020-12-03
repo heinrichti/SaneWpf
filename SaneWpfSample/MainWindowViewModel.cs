@@ -25,7 +25,7 @@ namespace SaneWpfSample
         }
 
 
-        public ICommand AsyncCommand => new AsyncCommand<object>((obj) => AsyncTestMethod());
+        public ICommand AsyncCommand => new AsyncCommand<object>(obj => AsyncTestMethod());
 
         public async Task AsyncTestMethod()
         {

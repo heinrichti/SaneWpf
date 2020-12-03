@@ -4,21 +4,29 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SaneWpfSample"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        xmlns:controls="clr-namespace:SaneWpf.Controls;assembly=SaneWpf"
+        Height="350"
+        Width="610"
+        mc:Ignorable="d">
 
     <Window.Resources>
         <local:MainWindowViewModel x:Key="ViewModel"></local:MainWindowViewModel>
     </Window.Resources>
 
-    <Window.DataContext><StaticResource ResourceKey="ViewModel" /></Window.DataContext>
+    <Window.DataContext>
+        <StaticResource ResourceKey="ViewModel" />
+    </Window.DataContext>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <TextBox Margin="2" Text="{Binding Test}"></TextBox>
-        <Button Grid.Row="1" Command="{Binding AsyncCommand}">Testbutton</Button>
-    </Grid>
+    <controls:LoadingDecorator>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBox Grid.Row="0" Margin="2" Text="{Binding Test}"></TextBox>
+
+            <Button Grid.Row="1" Command="{Binding AsyncCommand}">Testbutton</Button>
+        </Grid>
+    </controls:LoadingDecorator>
 </Window>
