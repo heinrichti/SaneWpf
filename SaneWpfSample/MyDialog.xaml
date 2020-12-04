@@ -20,7 +20,7 @@
     <GroupBox Header="Person">
         <controls:AutoIndexGrid Columns="Auto,*">
             <Label>Name</Label>
-            <TextBox Text="{Binding Name}" />
+            <TextBox Text="{Binding Name}" attached:KeyboardFocus.On="{Binding RelativeSource={RelativeSource Self}}" />
 
             <Label>Address</Label>
             <TextBox></TextBox>

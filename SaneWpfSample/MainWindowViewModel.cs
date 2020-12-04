@@ -19,19 +19,18 @@ namespace SaneWpfSample
 
             InitializeCommand = new AsyncCommand(async _ =>
             {
-                await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                //await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                 NumberTest = 355;
-            });
-
-            OpenDialogCommand = new Command<object>(o =>
-            {
-                var myDialog = new MyDialog();
-                myDialog.ViewModel<MyDialogViewModel>().Name = "Test User";
-                myDialog.ShowDialog();
+                await Task.CompletedTask;
             });
         }
 
-        public ICommand OpenDialogCommand { get; set; }
+        public ICommand OpenDialogCommand => new Command<object>(_ =>
+        {
+            var myDialog = new MyDialog();
+            myDialog.ViewModel<MyDialogViewModel>().Name = "Test User";
+            myDialog.ShowDialog();
+        });
 
         [Required]
         [MinLength(4)]
@@ -48,16 +47,7 @@ namespace SaneWpfSample
         }
 
 
-        public ICommand AsyncCommand => new AsyncCommand(_ => AsyncTestMethod());
-
-        public async Task AsyncTestMethod()
-        {
-            await Task.Delay(100).ConfigureAwait(false);
-            await Task.Delay(100).ConfigureAwait(false);
-            await Task.Delay(100).ConfigureAwait(false);
-            await Task.Delay(100).ConfigureAwait(false);
-            await Task.Delay(100).ConfigureAwait(false);
-        }
+        public ICommand AsyncCommand => new AsyncCommand(_ => Task.Delay(500));
 
         public ICommand InitializeCommand { get; }
     }

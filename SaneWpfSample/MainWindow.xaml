@@ -6,18 +6,13 @@
         xmlns:local="clr-namespace:SaneWpfSample"
         xmlns:controls="clr-namespace:SaneWpf.Controls;assembly=SaneWpf"
         xmlns:attached="clr-namespace:SaneWpf.Attached;assembly=SaneWpf"
-        Height="350"
-        Width="610"
+        Height="320"
+        Width="800"
         attached:ViewModelProperties.InitCommand="{Binding InitializeCommand}"
         Title="Testwindow"
         mc:Ignorable="d">
-
-    <Window.Resources>
-        <local:MainWindowViewModel x:Key="ViewModel"></local:MainWindowViewModel>
-    </Window.Resources>
-
     <Window.DataContext>
-        <StaticResource ResourceKey="ViewModel" />
+        <local:MainWindowViewModel />
     </Window.DataContext>
 
     <controls:LoadingDecorator>
