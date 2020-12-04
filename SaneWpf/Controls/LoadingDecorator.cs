@@ -1,10 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Markup;
 
 namespace SaneWpf.Controls
 {
-    [ContentProperty(nameof(Content))]
     public class LoadingDecorator : ContentControl
     {
         protected override void OnContentChanged(object oldContent, object newContent)
@@ -25,6 +23,7 @@ namespace SaneWpf.Controls
         public LoadingDecorator()
         {
             Style = (Style) FindResource("BusyAnimationStyle");
+            IsTabStop = false;
         }
 
         private void ContentLoaded(object sender, RoutedEventArgs e)
