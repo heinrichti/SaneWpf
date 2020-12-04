@@ -4,6 +4,10 @@
              xmlns:local="clr-namespace:SaneWpfSample"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <ResourceDictionary Source="/SaneWpf;component/Themes/Generic.xaml" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/SaneWpf;component/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

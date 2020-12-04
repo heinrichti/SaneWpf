@@ -4,27 +4,29 @@ using System.Windows.Input;
 
 namespace SaneWpf.Framework
 {
-    public class AsyncCommand<T> : ICommand
+    public class AsyncCommand : ICommand
     {
-        private readonly Func<T, Task> _commandAction;
-        private readonly Func<T, bool> _canExecute;
+        private readonly Func<object, Task> _commandAction;
+        private readonly Func<object, bool> _canExecute;
 
-        public AsyncCommand(Func<T, Task> commandAction) : this(commandAction, null) { }
+        public AsyncCommand(Func<object, Task> commandAction) : this(commandAction, null) { }
 
-        public AsyncCommand(Func<T, Task> commandAction, Func<T, bool> canExecute)
+        public AsyncCommand(Func<object, Task> commandAction, Func<object, bool> canExecute)
         {
             _commandAction = commandAction;
             _canExecute = canExecute;
         }
 
-        bool ICommand.CanExecute(object parameter) => !_running && (_canExecute?.Invoke((T) parameter) ?? true);
+        bool ICommand.CanExecute(object parameter) => !_running && (_canExecute?.Invoke(parameter) ?? true);
 
-        async void ICommand.Execute(object parameter)
+        async void ICommand.Execute(object parameter) => await ExecuteAsync(parameter).ConfigureAwait(false);
+
+        public async Task ExecuteAsync(object parameter)
         {
             _running = true;
             ExecuteChanged?.Invoke(this, EventArgs.Empty);
 
-            await _commandAction((T) parameter);
+            await _commandAction(parameter);
 
             _running = false;
             ExecuteChanged?.Invoke(this, EventArgs.Empty);

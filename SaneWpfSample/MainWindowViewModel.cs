@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using SaneWpf.Framework;
@@ -14,6 +15,12 @@ namespace SaneWpfSample
         {
             AddValidation(() => Test, s => s == "nobody", Validation.Warning("Name should not be nobody"));
             AddValidation(() => NumberTest, i => i < 25 || i > 50, Validation.Error("NumberTest has to be between 25 and 50"));
+
+            InitializeCommand = new AsyncCommand(async _ =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+                NumberTest = 355;
+            });
         }
 
         [Required]
@@ -31,7 +38,7 @@ namespace SaneWpfSample
         }
 
 
-        public ICommand AsyncCommand => new AsyncCommand<object>(_ => AsyncTestMethod());
+        public ICommand AsyncCommand => new AsyncCommand(_ => AsyncTestMethod());
 
         public async Task AsyncTestMethod()
         {
@@ -41,5 +48,7 @@ namespace SaneWpfSample
             await Task.Delay(100).ConfigureAwait(false);
             await Task.Delay(100).ConfigureAwait(false);
         }
+
+        public ICommand InitializeCommand { get; }
     }
 }

@@ -120,7 +120,10 @@ namespace SaneWpf.Controls
 
         private void VmOnErrorsChanged(object sender, DataErrorsChangedEventArgs e)
         {
-            UpdateErrors((INotifyDataErrorInfo) sender);
+            if (Application.Current.Dispatcher.CheckAccess())
+                UpdateErrors((INotifyDataErrorInfo) sender);
+            else
+                Application.Current.Dispatcher.Invoke(() => UpdateErrors((INotifyDataErrorInfo) sender));
         }
     }
 }
