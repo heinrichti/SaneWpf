@@ -8,6 +8,26 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/SaneWpf;component/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <Style TargetType="GroupBox">
+                <Setter Property="Margin" Value="5"></Setter>
+            </Style>
+
+            <Style TargetType="GridSplitter">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="GridSplitter">
+                            <Grid>
+                                <TextBlock
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Text="⁞" />
+                                <Rectangle Fill="#00FFFFFF" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

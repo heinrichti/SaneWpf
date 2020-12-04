@@ -20,7 +20,7 @@ namespace SaneWpfSample
             InitializeCommand = new AsyncCommand(async _ =>
             {
                 //await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
-                NumberTest = 355;
+                NumberTest = 25;
                 await Task.CompletedTask;
             });
         }
