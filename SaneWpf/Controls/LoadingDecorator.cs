@@ -3,33 +3,22 @@ using System.Windows.Controls;
 
 namespace SaneWpf.Controls
 {
-    public class LoadingDecorator : ContentControl
+    public class LoadingDecorator : Decorator
     {
-        protected override void OnContentChanged(object oldContent, object newContent)
+        public LoadingDecorator() => Loaded += OnLoaded;
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            base.OnContentChanged(oldContent, newContent);
-
-            if (oldContent is FrameworkElement oldFrameworkElement)
-            {
-                oldFrameworkElement.Loaded -= ContentLoaded;
-            }
-
-            if (newContent is FrameworkElement frameworkElement)
-            {
-                frameworkElement.Loaded += ContentLoaded;
-            }
+            var frameworkElement = (FrameworkElement)Child;
+            frameworkElement.Loaded += OnChildLoaded;
+            Child = new ContentControl {Style = (Style) FindResource("BusyAnimationStyle")};
         }
 
-        public LoadingDecorator()
+        private void OnChildLoaded(object sender, RoutedEventArgs e)
         {
-            Style = (Style) FindResource("BusyAnimationStyle");
-            IsTabStop = false;
-        }
-
-        private void ContentLoaded(object sender, RoutedEventArgs e)
-        {
-            Style = null;
-            ((FrameworkElement)sender).Loaded -= ContentLoaded;
+            var child = (FrameworkElement) sender;
+            Child = child;
+            child.Loaded -= OnLoaded;
         }
     }
 }
