@@ -7,6 +7,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/SaneWpf;component/Themes/Generic.xaml" />
+                <ResourceDictionary Source="ButtonResources.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style TargetType="GroupBox">

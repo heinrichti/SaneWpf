@@ -19,7 +19,7 @@ namespace SaneWpfSample
 
             InitializeCommand = new AsyncCommand(async _ =>
             {
-                await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+                //await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                 NumberTest = 25;
                 await Task.CompletedTask;
             });
@@ -27,8 +27,8 @@ namespace SaneWpfSample
 
         public ICommand OpenDialogCommand => new Command<object>(_ =>
         {
-            var myDialog = new MyDialog();
-            myDialog.ViewModel<MyDialogViewModel>().Name = "Test User";
+            var myDialog = new TodoDialog();
+            myDialog.ViewModel<TodoDialogViewModel>().TodoId = new Random().Next(1, 200);
             myDialog.ShowDialog();
         });
 

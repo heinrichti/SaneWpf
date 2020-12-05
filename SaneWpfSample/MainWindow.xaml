@@ -19,7 +19,7 @@
         <DockPanel>
             <controls:IssuesControl DockPanel.Dock="Top" />
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" attached:StackPanelProperties.Margin="5 0 0 5">
-                <Button Command="{Binding AsyncCommand}">_Testbutton</Button>
+                <Button Command="{Binding AsyncCommand}">AsyncButton</Button>
                 <Button Command="{Binding OpenDialogCommand}">_OpenDialog</Button>
             </StackPanel>
 
@@ -52,7 +52,7 @@
                         </controls:AutoIndexGrid>
                     </GroupBox>
 
-                    <GroupBox Header="Person" >
+                    <GroupBox Header="Person" controls:AutoIndexGrid.RowHeight="*">
                         <controls:AutoIndexGrid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="A" />

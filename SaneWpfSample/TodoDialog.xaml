@@ -1,4 +1,4 @@
-﻿<Window x:Class="SaneWpfSample.MyDialog"
+﻿<Window x:Class="SaneWpfSample.TodoDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,10 +6,13 @@
         xmlns:local="clr-namespace:SaneWpfSample"
         xmlns:controls="clr-namespace:SaneWpf.Controls;assembly=SaneWpf"
         xmlns:attached="clr-namespace:SaneWpf.Attached;assembly=SaneWpf"
+        attached:ViewModelProperties.InitCommand="{Binding InitializeCommand}"
         mc:Ignorable="d"
-        Title="MyDialog" Height="450" Width="800">
+        Title="Todo" Height="170" Width="366">
 
-    <Window.DataContext><local:MyDialogViewModel /></Window.DataContext>
+    <Window.DataContext>
+        <local:TodoDialogViewModel />
+    </Window.DataContext>
 
     <Window.Resources>
         <Style TargetType="TextBox">
@@ -19,11 +22,17 @@
 
     <GroupBox Header="Person">
         <controls:AutoIndexGrid Columns="Auto,*">
-            <Label>Name</Label>
-            <TextBox Text="{Binding Name}" attached:KeyboardFocus.On="{Binding RelativeSource={RelativeSource Self}}" />
+            <Label>Title</Label>
+            <TextBox Text="{Binding Title}" IsReadOnly="True" />
 
-            <Label>Address</Label>
-            <TextBox></TextBox>
+            <Label>UserId</Label>
+            <TextBox Text="{Binding UserId}" IsReadOnly="True" />
+
+            <Label>Id</Label>
+            <TextBox Text="{Binding Id}" IsReadOnly="True" />
+
+            <Label>Completed</Label>
+            <CheckBox IsChecked="{Binding Completed}" IsEnabled="False" VerticalAlignment="Center" />
         </controls:AutoIndexGrid>
     </GroupBox>
 </Window>

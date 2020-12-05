@@ -15,9 +15,9 @@ namespace SaneWpfSample
     /// <summary>
     /// Interaction logic for MyDialog.xaml
     /// </summary>
-    public partial class MyDialog : Window
+    public partial class TodoDialog : Window
     {
-        public MyDialog()
+        public TodoDialog()
         {
             InitializeComponent();
         }
