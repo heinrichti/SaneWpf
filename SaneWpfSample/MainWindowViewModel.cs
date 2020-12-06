@@ -14,12 +14,13 @@ namespace SaneWpfSample
 
         public MainWindowViewModel()
         {
-            AddValidation(() => Test, s => s == "nobody", Validation.Warning("Name should not be nobody"));
+            AddValidation(() => Test, s => s == "nobody", Validation.Error("Name should not be nobody"));
+            AddValidation(() => Test, s => s == "Tim", Validation.Error("Nööö"));
+            AddValidation(() => Test, s => s.Length < 4, Validation.Error("Muss länger als 3 sein"));
             AddValidation(() => NumberTest, i => i < 25 || i > 50, Validation.Error("NumberTest has to be between 25 and 50"));
 
             InitializeCommand = new AsyncCommand(async _ =>
             {
-                //await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
                 NumberTest = 25;
                 await Task.CompletedTask;
             });
@@ -33,7 +34,7 @@ namespace SaneWpfSample
         });
 
         [Required]
-        [MinLength(4)]
+        //[MinLength(4)]
         public string Test
         {
             get => _test;

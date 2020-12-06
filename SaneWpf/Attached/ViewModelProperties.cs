@@ -1,5 +1,8 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using SaneWpf.Controls;
 using SaneWpf.Framework;
 
 namespace SaneWpf.Attached
@@ -9,35 +12,33 @@ namespace SaneWpf.Attached
         public static readonly DependencyProperty InitCommandProperty = DependencyProperty.RegisterAttached(
             "InitCommand", typeof(ICommand), typeof(ViewModelProperties), new PropertyMetadata(InitCommandChangedCallback));
 
-        private static void InitCommandChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static async void InitCommandChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is FrameworkElement frameworkElement)
+            if (DesignerProperties.GetIsInDesignMode(d) || !(d is FrameworkElement frameworkElement))
+                return;
+
+            LoadingDecorator loadingDecorator = null;
+            if (frameworkElement is ContentControl c)
             {
-                frameworkElement.Loaded += FrameworkElementOnLoaded;
-                frameworkElement.Style = (Style) Application.Current.FindResource("BusyAnimationStyle");
+                var contentControl = c;
+                var content = contentControl.Content;
+                contentControl.Content = null;
+                loadingDecorator = new LoadingDecorator {Child = (UIElement) content};
+                contentControl.Content = loadingDecorator;
             }
 
-            async void FrameworkElementOnLoaded(object sender, RoutedEventArgs _)
-            {
-                frameworkElement.Loaded -= FrameworkElementOnLoaded;
+            if (e.NewValue is AsyncCommand asyncCommand)
+                await asyncCommand.ExecuteAsync(null);
+            else if (e.NewValue is ICommand command)
+                command.Execute(null);
 
-                if (e.NewValue is AsyncCommand asyncCommand)
-                    await asyncCommand.ExecuteAsync(null);
-                else if (e.NewValue is ICommand command)
-                    command.Execute(null);
-
-                frameworkElement.Style = null;
-            }
+            loadingDecorator.IsRunning = false;
         }
 
-        public static void SetInitCommand(DependencyObject element, ICommand value)
-        {
+        public static void SetInitCommand(DependencyObject element, ICommand value) => 
             element.SetValue(InitCommandProperty, value);
-        }
 
-        public static ICommand GetInitCommand(DependencyObject element)
-        {
-            return (ICommand) element.GetValue(InitCommandProperty);
-        }
+        public static ICommand GetInitCommand(DependencyObject element) => 
+            (ICommand) element.GetValue(InitCommandProperty);
     }
 }

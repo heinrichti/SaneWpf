@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using SaneWpf.Framework;
 
@@ -12,6 +13,8 @@ namespace SaneWpfSample
         {
             InitializeCommand = new AsyncCommand(async _ =>
             {
+                await Task.Delay(2000);
+
                 using (var httpClient = new HttpClient())
                 {
                     var todoString = await httpClient.GetStringAsync("https://jsonplaceholder.typicode.com/todos/" + TodoId);

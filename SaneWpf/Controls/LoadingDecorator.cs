@@ -1,24 +1,56 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System;
+using System.Windows;
+using System.Windows.Documents;
 
 namespace SaneWpf.Controls
 {
-    public class LoadingDecorator : Decorator
+    public class LoadingDecorator : AdornerDecorator
     {
-        public LoadingDecorator() => Loaded += OnLoaded;
+        private LoadingAdorner _adorner;
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
+        public LoadingDecorator()
         {
-            var frameworkElement = (FrameworkElement)Child;
-            frameworkElement.Loaded += OnChildLoaded;
-            Child = new ContentControl {Style = (Style) FindResource("BusyAnimationStyle")};
+            Loaded += OnLoaded;
+            IsRunning = true;
         }
 
-        private void OnChildLoaded(object sender, RoutedEventArgs e)
+        private void OnLoaded(object sender, EventArgs eventArgs)
         {
-            var child = (FrameworkElement) sender;
-            Child = child;
-            child.Loaded -= OnLoaded;
+            _adorner = new LoadingAdorner(this);
+            IsRunningChangedCallback(this, new DependencyPropertyChangedEventArgs(IsRunningProperty,
+                !IsRunning, IsRunning));
+        }
+
+        public static readonly DependencyProperty IsRunningProperty = DependencyProperty.Register(
+            "IsRunning", typeof(bool), typeof(LoadingDecorator), new PropertyMetadata(IsRunningChangedCallback));
+
+        private static void IsRunningChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var loadingDecorator = (LoadingDecorator)d;
+
+            if (!loadingDecorator.IsLoaded) return;
+
+            if ((bool) e.NewValue && !(bool) e.OldValue)
+            {
+                var adornerLayer = AdornerLayer.GetAdornerLayer(loadingDecorator);
+                adornerLayer.Add(loadingDecorator._adorner);
+                if (loadingDecorator.Child != null)
+                    loadingDecorator.Child.IsEnabled = false;
+            }
+
+            if (!(bool) e.NewValue && (bool) e.OldValue)
+            {
+                var adornerLayer = AdornerLayer.GetAdornerLayer(loadingDecorator);
+                adornerLayer.Remove(loadingDecorator._adorner);
+                if (loadingDecorator.Child != null)
+                    loadingDecorator.Child.IsEnabled = true;
+            }
+        }
+
+        public bool IsRunning
+        {
+            get { return (bool) GetValue(IsRunningProperty); }
+            set { SetValue(IsRunningProperty, value); }
         }
     }
 }

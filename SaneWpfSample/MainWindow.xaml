@@ -15,87 +15,85 @@
         <local:MainWindowViewModel />
     </Window.DataContext>
 
-    <controls:LoadingDecorator>
-        <DockPanel>
-            <controls:IssuesControl DockPanel.Dock="Top" />
-            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" attached:StackPanelProperties.Margin="5 0 0 5">
-                <Button Command="{Binding AsyncCommand}">AsyncButton</Button>
-                <Button Command="{Binding OpenDialogCommand}">_OpenDialog</Button>
-            </StackPanel>
+    <DockPanel>
+        <controls:IssuesControl DockPanel.Dock="Top" />
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" attached:StackPanelProperties.Margin="5 0 0 5">
+            <Button Command="{Binding AsyncCommand}">AsyncButton</Button>
+            <Button Command="{Binding OpenDialogCommand}">_OpenDialog</Button>
+        </StackPanel>
 
-            <controls:AutoIndexGrid Grid.IsSharedSizeScope="True" >
-                <controls:AutoIndexGrid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" MinWidth="200" />
-                    <ColumnDefinition Width="5" />
-                    <ColumnDefinition Width="*" MinWidth="200" />
-                </controls:AutoIndexGrid.ColumnDefinitions>
+        <controls:AutoIndexGrid Grid.IsSharedSizeScope="True" >
+            <controls:AutoIndexGrid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="200" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" MinWidth="200" />
+            </controls:AutoIndexGrid.ColumnDefinitions>
 
-                <controls:AutoIndexGrid.Resources>
-                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
-                        <Setter Property="VerticalAlignment" Value="Center"></Setter>
-                    </Style>
-                </controls:AutoIndexGrid.Resources>
+            <controls:AutoIndexGrid.Resources>
+                <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                </Style>
+            </controls:AutoIndexGrid.Resources>
 
-                <controls:AutoIndexGrid controls:AutoIndexGrid.RowHeight="*" Columns="*">
-                    <GroupBox Header="Tests">
-                        <controls:AutoIndexGrid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="A" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Target="{Binding ElementName=TestTextBox}">Test</Label>
-                            <TextBox x:Name="TestTextBox" Text="{Binding Test}" />
-
-                            <Label>NumberTest</Label>
-                            <TextBox attached:TextBoxProperties.IntOnly="True" Text="{Binding NumberTest}" />
-                        </controls:AutoIndexGrid>
-                    </GroupBox>
-
-                    <GroupBox Header="Person" controls:AutoIndexGrid.RowHeight="*">
-                        <controls:AutoIndexGrid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="A" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Label Target="{Binding ElementName=NameTextBox}">_Name</Label>
-                            <TextBox x:Name="NameTextBox" attached:KeyboardFocus.On="{Binding RelativeSource={RelativeSource Self}}"></TextBox>
-
-                            <Label Grid.ColumnSpan="2">Just a label with lots of text</Label>
-
-                            <Label controls:AutoIndexGrid.RowBreak="True">Address line 1</Label>
-                            <TextBox controls:AutoIndexGrid.RowHeight="*" VerticalAlignment="Stretch" />
-
-                            <Label >Address line 2</Label>
-                            <TextBox />
-                        </controls:AutoIndexGrid>
-                    </GroupBox>
-                </controls:AutoIndexGrid>
-
-                <GridSplitter HorizontalAlignment="Stretch" 
-                              Grid.RowSpan="2" Grid.Column="1"
-                              Width="5" IsTabStop="False" />
-
-                <GroupBox Header="Contact" Grid.RowSpan="2">
+            <controls:AutoIndexGrid controls:AutoIndexGrid.RowHeight="*" Columns="*">
+                <GroupBox Header="Tests">
                     <controls:AutoIndexGrid>
-                        <controls:AutoIndexGrid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" SharedSizeGroup="A" />
                             <ColumnDefinition Width="*" />
-                        </controls:AutoIndexGrid.ColumnDefinitions>
+                        </Grid.ColumnDefinitions>
 
-                        <Label>Phone</Label>
-                        <TextBox></TextBox>
-                        
-                        <Label>Email</Label>
-                        <TextBox></TextBox>
+                        <Label Target="{Binding ElementName=TestTextBox}">Test</Label>
+                        <TextBox x:Name="TestTextBox" Text="{Binding Test}" />
 
-                        <Label controls:AutoIndexGrid.RowHeight="*">Notes</Label>
-                        <TextBox VerticalAlignment="Stretch" />
+                        <Label>NumberTest</Label>
+                        <TextBox attached:TextBoxProperties.IntOnly="True" Text="{Binding NumberTest}" />
                     </controls:AutoIndexGrid>
                 </GroupBox>
 
+                <GroupBox Header="Person" controls:AutoIndexGrid.RowHeight="*">
+                    <controls:AutoIndexGrid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="A" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Target="{Binding ElementName=NameTextBox}">_Name</Label>
+                        <TextBox x:Name="NameTextBox" attached:KeyboardFocus.On="{Binding RelativeSource={RelativeSource Self}}"></TextBox>
+
+                        <Label Grid.ColumnSpan="2">Just a label with lots of text</Label>
+
+                        <Label controls:AutoIndexGrid.RowBreak="True">Address line 1</Label>
+                        <TextBox controls:AutoIndexGrid.RowHeight="*" VerticalAlignment="Stretch" />
+
+                        <Label >Address line 2</Label>
+                        <TextBox />
+                    </controls:AutoIndexGrid>
+                </GroupBox>
             </controls:AutoIndexGrid>
-        </DockPanel>
-    </controls:LoadingDecorator>
+
+            <GridSplitter HorizontalAlignment="Stretch" 
+                          Grid.RowSpan="2" Grid.Column="1"
+                          Width="5" IsTabStop="False" />
+
+            <GroupBox Header="Contact" Grid.RowSpan="2">
+                <controls:AutoIndexGrid>
+                    <controls:AutoIndexGrid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="A" />
+                        <ColumnDefinition Width="*" />
+                    </controls:AutoIndexGrid.ColumnDefinitions>
+
+                    <Label>Phone</Label>
+                    <TextBox></TextBox>
+                    
+                    <Label>Email</Label>
+                    <TextBox></TextBox>
+
+                    <Label controls:AutoIndexGrid.RowHeight="*">Notes</Label>
+                    <TextBox VerticalAlignment="Stretch" />
+                </controls:AutoIndexGrid>
+            </GroupBox>
+
+        </controls:AutoIndexGrid>
+    </DockPanel>
 </Window>
