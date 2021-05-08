@@ -78,6 +78,7 @@ namespace Generators
 
                     var fieldSymbol = (IFieldSymbol)model.GetDeclaredSymbol(variable);
                     property.FieldName = fieldSymbol.Name;
+                    property.ClassName = className;
                     property.Name = GetPropertyName(fieldSymbol.Name);
                     property.Type = fieldSymbol.Type.ToString();
                     property.TypeNamespace = fieldSymbol.Type.ContainingNamespace.Name;
@@ -151,13 +152,16 @@ namespace Generators
                             methodBody = lambdaExpression.Body.ToString();
                             parameterName = lambdaExpression.Parameter.ToString();
                         }
-                        var result = ((ArgumentSyntax) children[3].Syntax).Expression.ToString();
 
+                        var validationErrorExpression = (SimpleLambdaExpressionSyntax) ((ArgumentSyntax)children[3].Syntax).Expression;
+                        var result = validationErrorExpression.Body.ToString();
+                        var resultParameter = validationErrorExpression.Parameter.ToString();
                         var validation = new GenerationInfos.PartialClass.Property.Validation
                         {
                             MethodBody = methodBody,
                             ParameterName = parameterName,
-                            ValidationErrorResult = result,
+                            ValidationErrorBody = result,
+                            ValidationErrorParameter = resultParameter,
                             ParameterType = validationPropertyType
                         };
                         property.Validations.Add(validation);

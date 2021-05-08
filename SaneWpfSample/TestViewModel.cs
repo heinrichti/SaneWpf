@@ -14,12 +14,12 @@ namespace SaneWpfSample
             Validations.Add(this,
                 x => x._myProperty,
                 x => x != 25,
-                Validation.Error("Hello world"));
+                x => Validation.Error("Hello world"));
 
             Validations.Add(this,
                 x => x._myProperty,
                 Test,
-                Validation.Error("another validation"));
+                x => Validation.Error("another validation"));
         }
 
         private bool Test(int t)

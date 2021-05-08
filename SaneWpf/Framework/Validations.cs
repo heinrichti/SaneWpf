@@ -9,7 +9,7 @@ namespace SaneWpf.Framework
             T viewModel,
             Expression<Func<T, TU>> property,
             Func<TU, bool> errorCondition, 
-            Validation validation)
+            Func<T, Validation> validation)
         {
         }
     }

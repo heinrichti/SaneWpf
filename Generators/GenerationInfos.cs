@@ -14,7 +14,8 @@ namespace Generators
                 {
                     public string ParameterName { get; set; }
                     public string MethodBody { get; set; }
-                    public string ValidationErrorResult { get; set; }
+                    public string ValidationErrorBody { get; set; }
+                    public string ValidationErrorParameter { get; set; }
                     public string ParameterType { get; set; }
                 }
 
@@ -22,6 +23,8 @@ namespace Generators
                 public string Name { get; set; }
                 public string Type { get; set; }
                 public string TypeNamespace { get; set; }
+                public string ClassName { get; set; }
+
                 public readonly List<string> Attributes = new List<string>();
                 public readonly List<string> AttributeNamespaces = new List<string>();
                 public readonly List<string> PropertiesToNotify = new List<string>();
@@ -58,9 +61,10 @@ namespace Generators
                         {
                             // local method for validation
                             builder.AppendLine(
-    $@"                    bool validate_{validationMethod}({validation.ParameterType} {validation.ParameterName}) => {validation.MethodBody};
+$@"                    Validation error_{validationMethod}({ClassName} {validation.ValidationErrorParameter}) => {validation.ValidationErrorBody};
+                    bool validate_{validationMethod}({validation.ParameterType} {validation.ParameterName}) => {validation.MethodBody};
                     if (validate_{validationMethod}({FieldName}))
-                        issues.Add({validation.ValidationErrorResult});");
+                        issues.Add(error_{validationMethod}(this));");
 
                             ++validationMethod;
                         }

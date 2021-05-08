@@ -12,6 +12,7 @@ namespace SaneWpfSample
     public partial class MainWindowViewModel
     {
         [Required]
+        [MinLength(4)]
         [AutoNotify(nameof(_numberTest))]
         private string _test;
 
@@ -20,11 +21,11 @@ namespace SaneWpfSample
 
         public MainWindowViewModel()
         {
-            Validations.Add(this, x => x._test, s => s == "nobody", Validation.Error("name should not be nobody"));
-            Validations.Add(this, x => x._test, s => s == "nobody", Validation.Error("Name should not be nobody"));
-            Validations.Add(this, x => x._test, s => s == "Tim", Validation.Error("Nööö"));
-            Validations.Add(this, x => x._test, s => s.Length < 4, Validation.Error("Muss länger als 3 sein"));
-            Validations.Add(this, x => x._numberTest, i => i < 25 || i > 50, Validation.Error("NumberTest has to be between 25 and 50"));
+            Validations.Add(this, x => x._test, s => s == "nobody", x => Validation.Error("name should not be nobody"));
+            Validations.Add(this, x => x._test, s => s == "nobody", x => Validation.Error("Name should not be nobody"));
+            Validations.Add(this, x => x._test, s => s == "Tim", x => Validation.Error("Nööö"));
+            Validations.Add(this, x => x._test, s => s.Length < 4, x => Validation.Error("Muss länger als 3 sein"));
+            Validations.Add(this, x => x._numberTest, i => i < 25 || i > 50, x => Validation.Error("NumberTest has to be between 25 and 50"));
 
             InitializeCommand = new AsyncCommand(async _ =>
             {
@@ -39,21 +40,6 @@ namespace SaneWpfSample
             myDialog.ViewModel<TodoDialogViewModel>().TodoId = new Random().Next(1, 200);
             myDialog.ShowDialog();
         });
-
-        //[Required]
-        ////[MinLength(4)]
-        //public string Test
-        //{
-        //    get => _test;
-        //    set => Set(ref _test, value);
-        //}
-
-        //public int NumberTest
-        //{
-        //    get => _numberTest;
-        //    set => Set(ref _numberTest, value);
-        //}
-
 
         public ICommand AsyncCommand => new AsyncCommand(_ => Task.Delay(500));
 
