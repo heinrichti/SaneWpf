@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using SaneWpf.Attributes;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -65,12 +66,12 @@ namespace Generators
 
             foreach (var fieldDeclaration in _relevantFields)
             {
-                var model = compilation.GetSemanticModel(fieldDeclaration.Item1.SyntaxTree);
-                var fieldClass = model.GetDeclaredSymbol(fieldDeclaration.Item1);
+                var model = compilation.GetSemanticModel(fieldDeclaration.ClassSyntax.SyntaxTree);
+                var fieldClass = model.GetDeclaredSymbol(fieldDeclaration.ClassSyntax);
                 if (fieldClass.ContainingNamespace.ToString() != ns || fieldClass.Name.ToString() != className)
                     continue;
 
-                foreach (var variable in fieldDeclaration.Item2.Declaration.Variables)
+                foreach (var variable in fieldDeclaration.FieldSyntax.Declaration.Variables)
                 {
                     var property = new GenerationInfos.PartialClass.Property();
                     partialClass.Properties.Add(property);
@@ -110,6 +111,59 @@ namespace Generators
                     }
 
                     #endregion
+
+                    #region property validations
+
+                    foreach (var invocation in _invocations)
+                    {
+                        var invocationModel = compilation.GetSemanticModel(invocation.SyntaxTree);
+                        var operation = invocationModel.GetOperation(invocation) as IInvocationOperation;
+                        var operationName = operation.TargetMethod.Name;
+                        var operationClass = operation.TargetMethod.ContainingType.ToString();
+
+                        if (operationClass != "SaneWpf.Framework.Validations" || operationName != "Add")
+                            continue;
+
+                        var children = operation.Children.Cast<IArgumentOperation>().ToList();
+                        var viewModelType = children[0].Parameter.ToString();
+                        if (viewModelType != ns + "." + className)
+                            continue;
+
+                        var propertyExp = (SimpleLambdaExpressionSyntax)((ArgumentSyntax)children[1].Syntax).Expression;
+                        var memberAccess = (MemberAccessExpressionSyntax) propertyExp.Body;
+                        var fieldName = memberAccess.Name.ToString();
+                        if (fieldName != property.FieldName)
+                            continue;
+
+                        var validationPropertyType = operation.TargetMethod.TypeArguments[1].ToString();
+
+                        var func = ((ArgumentSyntax)children[2].Syntax).Expression;
+                        string parameterName;
+                        string methodBody;
+                        if (func is IdentifierNameSyntax id)
+                        {
+                            methodBody = id.ToString() + "(param_0);";
+                            parameterName = "param_0";
+                        }
+                        else
+                        {
+                            var lambdaExpression = (SimpleLambdaExpressionSyntax)func;
+                            methodBody = lambdaExpression.Body.ToString();
+                            parameterName = lambdaExpression.Parameter.ToString();
+                        }
+                        var result = ((ArgumentSyntax) children[3].Syntax).Expression.ToString();
+
+                        var validation = new GenerationInfos.PartialClass.Property.Validation
+                        {
+                            MethodBody = methodBody,
+                            ParameterName = parameterName,
+                            ValidationErrorResult = result,
+                            ParameterType = validationPropertyType
+                        };
+                        property.Validations.Add(validation);
+                    }
+
+                    #endregion
                 }
             }
 
@@ -123,7 +177,8 @@ namespace Generators
         }
 
         private readonly List<ClassDeclarationSyntax> _relevantClasses = new List<ClassDeclarationSyntax>();
-        private readonly List<(ClassDeclarationSyntax, FieldDeclarationSyntax)> _relevantFields = new List<(ClassDeclarationSyntax, FieldDeclarationSyntax)>();
+        private readonly List<(ClassDeclarationSyntax ClassSyntax, FieldDeclarationSyntax FieldSyntax)> _relevantFields = new List<(ClassDeclarationSyntax, FieldDeclarationSyntax)>();
+        private readonly List<InvocationExpressionSyntax> _invocations = new List<InvocationExpressionSyntax>();
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
@@ -136,7 +191,7 @@ namespace Generators
                 {
                     _relevantClasses.Add(classSyntax);
                 }
-            } 
+            }
             else if (syntaxNode is FieldDeclarationSyntax fieldSyntax)
             {
                 if (fieldSyntax.AttributeLists
@@ -146,6 +201,13 @@ namespace Generators
                 {
                     var parent = (ClassDeclarationSyntax) fieldSyntax.Parent;
                     _relevantFields.Add((parent, fieldSyntax));
+                }
+            }
+            else if (syntaxNode is InvocationExpressionSyntax invocation)
+            {
+                if (invocation.ChildNodes().Any(x => x is MemberAccessExpressionSyntax exp && x.ToString() == "Validations.Add"))
+                {
+                    _invocations.Add(invocation);
                 }
             }
         }
