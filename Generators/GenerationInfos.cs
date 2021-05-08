@@ -59,7 +59,7 @@ namespace Generators
                             // local method for validation
                             builder.AppendLine(
     $@"                    bool validate_{validationMethod}({validation.ParameterType} {validation.ParameterName}) => {validation.MethodBody};
-                    if (!validate_{validationMethod}({FieldName}))
+                    if (validate_{validationMethod}({FieldName}))
                         issues.Add({validation.ValidationErrorResult});");
 
                             ++validationMethod;

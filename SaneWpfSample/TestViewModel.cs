@@ -6,8 +6,8 @@ namespace SaneWpfSample
     [ViewModel]
     internal partial class TestViewModel
     {
-        [AutoNotify]
-        private int _myProperty;
+        [AutoNotify] private int _myProperty;
+        [AutoNotify(nameof(_myProperty))] private int _anotherProperty;
 
         public TestViewModel()
         {

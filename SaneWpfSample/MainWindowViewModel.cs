@@ -20,10 +20,11 @@ namespace SaneWpfSample
 
         public MainWindowViewModel()
         {
-            //AddValidation(() => Test, s => s == "nobody", Validation.Error("Name should not be nobody"));
-            //AddValidation(() => Test, s => s == "Tim", Validation.Error("Nööö"));
-            //AddValidation(() => Test, s => s.Length < 4, Validation.Error("Muss länger als 3 sein"));
-            //AddValidation(() => NumberTest, i => i < 25 || i > 50, Validation.Error("NumberTest has to be between 25 and 50"));
+            Validations.Add(this, x => x._test, s => s == "nobody", Validation.Error("name should not be nobody"));
+            Validations.Add(this, x => x._test, s => s == "nobody", Validation.Error("Name should not be nobody"));
+            Validations.Add(this, x => x._test, s => s == "Tim", Validation.Error("Nööö"));
+            Validations.Add(this, x => x._test, s => s.Length < 4, Validation.Error("Muss länger als 3 sein"));
+            Validations.Add(this, x => x._numberTest, i => i < 25 || i > 50, Validation.Error("NumberTest has to be between 25 and 50"));
 
             InitializeCommand = new AsyncCommand(async _ =>
             {
