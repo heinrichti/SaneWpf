@@ -17,6 +17,7 @@ namespace Generators
                     public string ValidationErrorBody { get; set; }
                     public string ValidationErrorParameter { get; set; }
                     public string ParameterType { get; set; }
+                    public string FieldName { get; set; }
                 }
 
                 public string FieldName { get; set; }

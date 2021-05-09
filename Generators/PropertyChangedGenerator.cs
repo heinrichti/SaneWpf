@@ -11,72 +11,97 @@ namespace Generators
     [Generator]
     public class PropertyChangedGenerator : ISourceGenerator, ISyntaxReceiver
     {
-        public void Execute(GeneratorExecutionContext context)
+        private Dictionary<string, List<GenerationInfos.PartialClass.Property.Validation>> GetValidValidationCalls(GeneratorExecutionContext context)
         {
-            var generationInfos = new GenerationInfos();
+            var compilation = context.Compilation;
+            var returnList = new Dictionary<string, List<GenerationInfos.PartialClass.Property.Validation>>();
 
-            foreach (var classDeclaration in _relevantClasses)
+            foreach (var invocation in _invocations)
             {
-                var classModel = context.Compilation.GetSemanticModel(classDeclaration.SyntaxTree);
-                var classSymbol = classModel.GetDeclaredSymbol(classDeclaration);
+                var invocationModel = compilation.GetSemanticModel(invocation.SyntaxTree);
+                var containingMethod = invocationModel.GetEnclosingSymbol(invocation.Parent.GetLocation().SourceSpan.Start);
+                var containingClass = containingMethod.ContainingType.ToString();
 
-                if (!classSymbol.GetAttributes().Any(x => x.AttributeClass.Name == nameof(ViewModelAttribute)))
+                var operation = invocationModel.GetOperation(invocation) as IInvocationOperation;
+                var operationName = operation.TargetMethod.Name;
+                var operationClass = operation.TargetMethod.ContainingType.ToString();
+
+                if (operationClass != "SaneWpf.Framework.Validations" || operationName != "Add")
                     continue;
 
-                if (!classDeclaration.Modifiers.Any(modifierList => modifierList.ToString() == "partial"))
+                var children = operation.Children.Cast<IArgumentOperation>().ToList();
+                var viewModelType = children[0].Parameter.ToString();
+                if (viewModelType != containingClass)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        new DiagnosticDescriptor(
-                            "SW001",
-                            "Class is not partial", "The following class is not partial: {0}", "Error",
-                            DiagnosticSeverity.Error, true),
-                        classDeclaration.GetLocation(), classSymbol.Name));
-
-                    continue;
+                    context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("SW002", "Instance must be of same type as ViewModel", "Instance must be of same type as ViewModel", "Error", DiagnosticSeverity.Error, true), invocation.GetLocation()));
                 }
-                var ns = classSymbol.ContainingNamespace.ToString();
-                
-                var classToCreate = CreatePartialClass(context.Compilation, ns, classSymbol.Name);
-                generationInfos.ClassesToCreate.Add(classToCreate);
+
+                var propertyExp = (SimpleLambdaExpressionSyntax)((ArgumentSyntax)children[1].Syntax).Expression;
+                var memberAccess = (MemberAccessExpressionSyntax)propertyExp.Body;
+                var fieldName = memberAccess.Name.ToString();
+
+                var validationPropertyType = operation.TargetMethod.TypeArguments[1].ToString();
+
+                var func = ((ArgumentSyntax)children[2].Syntax).Expression;
+                string parameterName;
+                string methodBody;
+                if (func is IdentifierNameSyntax id)
+                {
+                    methodBody = id.ToString() + "(param_0);";
+                    parameterName = "param_0";
+                }
+                else
+                {
+                    var lambdaExpression = (SimpleLambdaExpressionSyntax)func;
+                    methodBody = lambdaExpression.Body.ToString();
+                    parameterName = lambdaExpression.Parameter.ToString();
+                }
+
+                var validationErrorExpression = (SimpleLambdaExpressionSyntax)((ArgumentSyntax)children[3].Syntax).Expression;
+                var result = validationErrorExpression.Body.ToString();
+                var resultParameter = validationErrorExpression.Parameter.ToString();
+                var validation = new GenerationInfos.PartialClass.Property.Validation
+                {
+                    MethodBody = methodBody,
+                    ParameterName = parameterName,
+                    ValidationErrorBody = result,
+                    ValidationErrorParameter = resultParameter,
+                    ParameterType = validationPropertyType,
+                    FieldName = fieldName
+                };
+
+                if (returnList.TryGetValue(containingClass, out var list))
+                    list.Add(validation);
+                else
+                    returnList.Add(containingClass, new List<GenerationInfos.PartialClass.Property.Validation> { validation });
             }
 
-            context.AddSource("generated.cs", generationInfos.ToString());
+            return returnList;
         }
 
-        private static string GetPropertyName(string fieldName)
+        private Dictionary<string, List<GenerationInfos.PartialClass.Property>> GetValidProperties(
+            GeneratorExecutionContext context,
+            Dictionary<string, List<GenerationInfos.PartialClass.Property.Validation>> validations)
         {
-            var offset = fieldName[0] == '_' ? 1 : 0;
-
-            var newStr = new char[fieldName.Length - offset];
-
-            newStr[0] = char.ToUpper(fieldName[offset]);
-            for (int i = 1; i < newStr.Length; i++)
-            {
-                newStr[i] = fieldName[i + offset];
-            }
-
-            return new string(newStr);
-        }
-
-        private GenerationInfos.PartialClass CreatePartialClass(Compilation compilation, string ns, string className)
-        {
-            var partialClass = new GenerationInfos.PartialClass();
-            partialClass.Namespace = ns;
-            partialClass.Name = className;
+            var result = new Dictionary<string, List<GenerationInfos.PartialClass.Property>>();
+            var compilation = context.Compilation;
 
             foreach (var fieldDeclaration in _relevantFields)
             {
-                var model = compilation.GetSemanticModel(fieldDeclaration.ClassSyntax.SyntaxTree);
-                var fieldClass = model.GetDeclaredSymbol(fieldDeclaration.ClassSyntax);
-                if (fieldClass.ContainingNamespace.ToString() != ns || fieldClass.Name.ToString() != className)
-                    continue;
+                var fieldModel = compilation.GetSemanticModel(fieldDeclaration.FieldSyntax.SyntaxTree);
+                
+                var classSymbol = fieldModel.GetEnclosingSymbol(fieldDeclaration.FieldSyntax.Parent.GetLocation().SourceSpan.Start);
+                var className = classSymbol.ToString();
 
                 foreach (var variable in fieldDeclaration.FieldSyntax.Declaration.Variables)
                 {
                     var property = new GenerationInfos.PartialClass.Property();
-                    partialClass.Properties.Add(property);
+                    if (result.TryGetValue(className, out var list))
+                        list.Add(property);
+                    else
+                        result.Add(className, new List<GenerationInfos.PartialClass.Property> { property });
 
-                    var fieldSymbol = (IFieldSymbol)model.GetDeclaredSymbol(variable);
+                    var fieldSymbol = (IFieldSymbol)fieldModel.GetDeclaredSymbol(variable);
                     property.FieldName = fieldSymbol.Name;
                     property.ClassName = className;
                     property.Name = GetPropertyName(fieldSymbol.Name);
@@ -115,63 +140,76 @@ namespace Generators
 
                     #region property validations
 
-                    foreach (var invocation in _invocations)
+                    if (validations.TryGetValue(property.ClassName, out var propertyValidations))
                     {
-                        var invocationModel = compilation.GetSemanticModel(invocation.SyntaxTree);
-                        var operation = invocationModel.GetOperation(invocation) as IInvocationOperation;
-                        var operationName = operation.TargetMethod.Name;
-                        var operationClass = operation.TargetMethod.ContainingType.ToString();
-
-                        if (operationClass != "SaneWpf.Framework.Validations" || operationName != "Add")
-                            continue;
-
-                        var children = operation.Children.Cast<IArgumentOperation>().ToList();
-                        var viewModelType = children[0].Parameter.ToString();
-                        if (viewModelType != ns + "." + className)
-                            continue;
-
-                        var propertyExp = (SimpleLambdaExpressionSyntax)((ArgumentSyntax)children[1].Syntax).Expression;
-                        var memberAccess = (MemberAccessExpressionSyntax) propertyExp.Body;
-                        var fieldName = memberAccess.Name.ToString();
-                        if (fieldName != property.FieldName)
-                            continue;
-
-                        var validationPropertyType = operation.TargetMethod.TypeArguments[1].ToString();
-
-                        var func = ((ArgumentSyntax)children[2].Syntax).Expression;
-                        string parameterName;
-                        string methodBody;
-                        if (func is IdentifierNameSyntax id)
+                        foreach (var validation in propertyValidations.Where(x => x.FieldName == property.FieldName))
                         {
-                            methodBody = id.ToString() + "(param_0);";
-                            parameterName = "param_0";
+                            property.Validations.Add(validation);
                         }
-                        else
-                        {
-                            var lambdaExpression = (SimpleLambdaExpressionSyntax)func;
-                            methodBody = lambdaExpression.Body.ToString();
-                            parameterName = lambdaExpression.Parameter.ToString();
-                        }
-
-                        var validationErrorExpression = (SimpleLambdaExpressionSyntax) ((ArgumentSyntax)children[3].Syntax).Expression;
-                        var result = validationErrorExpression.Body.ToString();
-                        var resultParameter = validationErrorExpression.Parameter.ToString();
-                        var validation = new GenerationInfos.PartialClass.Property.Validation
-                        {
-                            MethodBody = methodBody,
-                            ParameterName = parameterName,
-                            ValidationErrorBody = result,
-                            ValidationErrorParameter = resultParameter,
-                            ParameterType = validationPropertyType
-                        };
-                        property.Validations.Add(validation);
                     }
 
                     #endregion
                 }
             }
 
-            return partialClass;
+            return result;
+        }
+
+        public void Execute(GeneratorExecutionContext context)
+        {
+            var generationInfos = new GenerationInfos();
+            var validationCalls = GetValidValidationCalls(context);
+            var properties = GetValidProperties(context, validationCalls);
+
+            foreach (var classDeclaration in _relevantClasses)
+            {
+                var classModel = context.Compilation.GetSemanticModel(classDeclaration.SyntaxTree);
+                var classSymbol = classModel.GetDeclaredSymbol(classDeclaration);
+
+                if (!classSymbol.GetAttributes().Any(x => x.AttributeClass.Name == nameof(ViewModelAttribute)))
+                    continue;
+
+                if (!classDeclaration.Modifiers.Any(modifierList => modifierList.ToString() == "partial"))
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(
+                        new DiagnosticDescriptor(
+                            "SW001",
+                            "Class is not partial", "The following class is not partial: {0}", "Error",
+                            DiagnosticSeverity.Error, true),
+                        classDeclaration.GetLocation(), classSymbol.Name));
+
+                    continue;
+                }
+                var ns = classSymbol.ContainingNamespace.ToString();
+
+                var classToCreate = new GenerationInfos.PartialClass
+                {
+                    Namespace = ns,
+                    Name = classSymbol.Name,
+                };
+
+                if (properties.TryGetValue(classSymbol.ToString(), out var v))
+                    classToCreate.Properties.AddRange(v);
+
+                generationInfos.ClassesToCreate.Add(classToCreate);
+            }
+
+            context.AddSource("generated.cs", generationInfos.ToString());
+        }
+
+        private static string GetPropertyName(string fieldName)
+        {
+            var offset = fieldName[0] == '_' ? 1 : 0;
+
+            var newStr = new char[fieldName.Length - offset];
+
+            newStr[0] = char.ToUpper(fieldName[offset]);
+            for (int i = 1; i < newStr.Length; i++)
+            {
+                newStr[i] = fieldName[i + offset];
+            }
+
+            return new string(newStr);
         }
 
         public void Initialize(GeneratorInitializationContext context)
