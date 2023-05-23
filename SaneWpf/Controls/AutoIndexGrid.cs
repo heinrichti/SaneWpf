@@ -119,8 +119,8 @@ namespace SaneWpf.Controls
                     yield return new ColumnDefinition {Width = new GridLength(double.Parse(columnDefinition.Substring(0, columnDefinition.Length - 1)), GridUnitType.Star)};
                 else if (string.Equals(columnDefinition, "Auto", StringComparison.InvariantCultureIgnoreCase))
                     yield return new ColumnDefinition {Width = GridLength.Auto};
-                else
-                    yield return new ColumnDefinition {Width = new GridLength(double.Parse(columnDefinition))};
+                else if (double.TryParse(columnDefinition, out var result))
+                    yield return new ColumnDefinition {Width = new GridLength(result)};
                 
             }
         }
