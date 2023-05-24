@@ -20,7 +20,7 @@ namespace SaneWpf.Controls
 
         public static void SetRowBreak(DependencyObject element, bool value) => element.SetValue(RowBreakProperty, value);
 
-        public static bool GetRowBreak(DependencyObject element) => (element?.GetValue(RowBreakProperty) ?? false);
+        public static bool GetRowBreak(DependencyObject element) => (bool) (element?.GetValue(RowBreakProperty) ?? false);
 
         public static readonly DependencyProperty RowHeightProperty = DependencyProperty.RegisterAttached(
             "RowHeight", typeof(GridLength), typeof(AutoIndexGrid),
