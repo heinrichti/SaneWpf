@@ -20,7 +20,7 @@ namespace SaneWpf.Controls
 
         public static void SetRowBreak(DependencyObject element, bool value) => element.SetValue(RowBreakProperty, value);
 
-        public static bool GetRowBreak(DependencyObject element) => (bool) element.GetValue(RowBreakProperty);
+        public static bool GetRowBreak(DependencyObject element) => (element?.GetValue(RowBreakProperty) ?? false);
 
         public static readonly DependencyProperty RowHeightProperty = DependencyProperty.RegisterAttached(
             "RowHeight", typeof(GridLength), typeof(AutoIndexGrid),
@@ -40,7 +40,7 @@ namespace SaneWpf.Controls
 
         public static void SetRowHeight(DependencyObject element, GridLength value) => element.SetValue(RowHeightProperty, value);
 
-        public static GridLength GetRowHeight(DependencyObject element) => (GridLength) element.GetValue(RowHeightProperty);
+        public static GridLength GetRowHeight(DependencyObject element) =>  (GridLength) (element?.GetValue(RowHeightProperty) ?? GridLength.Auto);
 
         public static readonly DependencyProperty ColumnsProperty = DependencyProperty.Register(
             "Columns", typeof(string), typeof(AutoIndexGrid), new FrameworkPropertyMetadata(ColumnsChangedCallback));
@@ -107,6 +107,8 @@ namespace SaneWpf.Controls
             
             foreach (var columnDefinition in GetColumnDefinitions(columnDefinitions)) 
                 grid.ColumnDefinitions.Add(columnDefinition);
+                
+            RefreshChildIndexes(grid);
         }
 
         private static IEnumerable<ColumnDefinition> GetColumnDefinitions(string[] columnDefinitions)
